@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>תפריט משפחתי - אייל שלי</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#faf7f2;color:#222;padding-bottom:110px}
+header{background:#b5542b;color:#fff;padding:18px 16px}
+header h1{margin:0;font-size:22px} header p{margin:6px 0 0;font-size:14px;opacity:.9}
+main{max-width:640px;margin:0 auto;padding:12px}
+label.name{display:block;background:#fff;border-radius:12px;padding:12px;margin:8px 0 16px;box-shadow:0 1px 3px #0001}
+label.name span{display:block;font-weight:600;margin-bottom:6px}
+input[type=text]{width:100%;font-size:18px;padding:10px;border:1px solid #ccc;border-radius:8px}
+h2{font-size:18px;margin:22px 4px 8px;color:#b5542b}
+.dish{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border-radius:12px;padding:10px 12px;margin:8px 0;box-shadow:0 1px 3px #0001}
+.dish .info{flex:1;min-width:0}
+.dish .nm{font-weight:600}
+.dish .pr{font-size:14px;color:#666}
+.dish .lt{font-size:14px;color:#b5542b;font-weight:600;min-height:18px}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:40px;height:40px;border-radius:50%;border:1px solid #b5542b;background:#fff;color:#b5542b;font-size:22px;line-height:1}
+.step button:active{background:#b5542b;color:#fff}
+.step .q{min-width:26px;text-align:center;font-size:18px;font-weight:700}
+.bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;padding:10px 14px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.bar .tot{font-size:14px} .bar .tot b{display:block;font-size:20px}
+.bar button{flex:1;max-width:240px;font-size:18px;font-weight:700;padding:14px;border:0;border-radius:12px;background:#b5542b;color:#fff}
+.bar button:disabled{background:#bbb}
+#done{display:none;text-align:center;padding:40px 16px}
+#done .ok{font-size:56px}
+#done button{font-size:16px;padding:12px 20px;border-radius:10px;border:1px solid #b5542b;background:#fff;color:#b5542b;margin:6px}
+.share{display:block;margin:16px auto;font-size:16px;padding:12px 18px;border-radius:10px;border:1px solid #25a244;background:#fff;color:#1a7a33}
+#err{color:#b00;text-align:center;margin:8px}
+.src{font-size:12px;color:#888;text-align:center;margin:20px 0}
+</style>
+</head>
+<body>
+<header><h1>🍽️ מה אוכלים? תפריט אייל שלי</h1><p>בחרו מנות וכמויות, כתבו שם ולחצו שליחה. אפשר לחזור ולשנות - פשוט לשלוח שוב עם אותו שם.</p></header>
+<main id="form">
+  <label class="name"><span>השם שלך</span><input type="text" id="name" placeholder="למשל: סבתא רחל" autocomplete="name"></label>
+  <div id="menu"></div>
+  <div id="err"></div>
+  <button type="button" class="share" id="share1">📤 שיתוף הדף בוואטסאפ</button>
+  <div class="src" id="src"></div>
+</main>
+<main id="done"><div class="ok">✅</div><h2 style="color:#222">תודה, הבחירה נשמרה!</h2><div id="sum"></div>
+  <button id="edit">שינוי הבחירה</button> <button id="share2">📤 שיתוף בוואטסאפ</button></main>
+<div class="bar" id="bar"><div class="tot">סה״כ להזמנה שלך<b id="total">₪0</b></div><button id="send" disabled>שליחה</button></div>
+<script>
+// ====== EDIT HERE: endpoint and menu ======
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbx57_gaSYrSiMOtNTdbZk0D96gqRQGN66CcIBP-8eduEGoxAnpUZI_9sjs2ndL7Zt1V4A/exec";
+const SOURCE_NOTE = "המחירים לפי תפריט אייל שלי. ייתכנו שינויים.";
+const MENU = [
+ {
+  "category": "עסקיות א-ה",
+  "note": "מוגש עם שתי תוספות חמות, שלושה סלטים ולחם",
+  "items": [
+   {
+    "name": "שניצל עוף",
+    "price": 75
+   },
+   {
+    "name": "חזה עוף צלוי",
+    "price": 75
+   },
+   {
+    "name": "פילה מושט חריימה",
+    "price": 75
+   },
+   {
+    "name": "סטייק פרגית פילדלפיה",
+    "price": 75
+   },
+   {
+    "name": "כרעיים עוף עם ירקות",
+    "price": 75
+   }
+  ]
+ },
+ {
+  "category": "שתייה",
+  "items": [
+   {
+    "name": "פפסי",
+    "price": 12
+   },
+   {
+    "name": "פפסי מאקס",
+    "price": 12
+   },
+   {
+    "name": "7 אפ",
+    "price": 12
+   },
+   {
+    "name": "7 אפ דיאט",
+    "price": 12
+   },
+   {
+    "name": "מירינדה",
+    "price": 12
+   }
+  ]
+ }
+];
+// ==========================================
+const qty = {}; const $ = id => document.getElementById(id);
+const fmt = n => "₪" + (Math.round(n*100)/100).toString();
+const menuEl = $("menu");
+MENU.forEach(cat => {
+  const h = document.createElement("h2"); h.textContent = cat.category; menuEl.appendChild(h);
+  if (cat.note) { const n = document.createElement("div"); n.className="pr"; n.style.margin="0 4px"; n.textContent=cat.note; menuEl.appendChild(n); }
+  cat.items.forEach(it => {
+    qty[it.name] = 0;
+    const d = document.createElement("div"); d.className = "dish";
+    d.innerHTML = '<div class="info"><div class="nm"></div><div class="pr"></div><div class="lt"></div></div>' +
+      '<div class="step"><button type="button" aria-label="הוסף">+</button><span class="q">0</span><button type="button" aria-label="הפחת">−</button></div>';
+    d.querySelector(".nm").textContent = it.name;
+    d.querySelector(".pr").textContent = it.price ? fmt(it.price) + " ליחידה" : "";
+    const [plus, minus] = d.querySelectorAll("button");
+    plus.onclick = () => set(it.name, Math.min(99, qty[it.name] + 1));
+    minus.onclick = () => set(it.name, Math.max(0, qty[it.name] - 1));
+    it.el = d; menuEl.appendChild(d);
+  });
+});
+$("src").textContent = SOURCE_NOTE;
+function set(n, v) {
+  qty[n] = v;
+  MENU.forEach(c => c.items.forEach(it => { if (it.name === n) {
+    it.el.querySelector(".q").textContent = v;
+    it.el.querySelector(".lt").textContent = v ? v + " × " + fmt(it.price) + " = " + fmt(v * it.price) : "";
+  }}));
+  refresh();
+}
+function chosen() { const r = []; MENU.forEach(c => c.items.forEach(it => { if (qty[it.name] > 0) r.push({category:c.category, dish:it.name, qty:qty[it.name], price:it.price}); })); return r; }
+function refresh() { const t = chosen().reduce((s, x) => s + x.qty * x.price, 0); $("total").textContent = fmt(t); $("send").disabled = !(chosen().length && $("name").value.trim()); }
+$("name").addEventListener("input", refresh);
+$("name").value = localStorage.getItem("fm_name") || "";
+async function loadMine() {
+  const n = $("name").value.trim(); if (!n || !ENDPOINT.startsWith("http")) return refresh();
+  try { const r = await (await fetch(ENDPOINT + "?name=" + encodeURIComponent(n))).json();
+    (r.items || []).forEach(x => { if (x.dish in qty) set(x.dish, +x.qty); }); } catch (e) {}
+  refresh();
+}
+$("name").addEventListener("change", loadMine);
+$("send").onclick = async () => {
+  const name = $("name").value.trim(), items = chosen(); $("err").textContent = "";
+  $("send").disabled = true; $("send").textContent = "שולח...";
+  try {
+    const res = await fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({name, items})});
+    const j = await res.json(); if (!j.ok) throw new Error(j.error);
+    localStorage.setItem("fm_name", name);
+    const tot = items.reduce((s,x)=>s+x.qty*x.price,0);
+    $("sum").innerHTML = "<p><b></b></p><ul style='list-style:none;padding:0'></ul><p>סה״כ: <b>" + fmt(tot) + "</b></p>";
+    $("sum").querySelector("b").textContent = name;
+    const ul = $("sum").querySelector("ul"); items.forEach(x => { const li = document.createElement("li"); li.textContent = x.qty + " × " + x.dish + " (" + fmt(x.qty*x.price) + ")"; ul.appendChild(li); });
+    $("form").style.display = "none"; $("bar").style.display = "none"; $("done").style.display = "block"; window.scrollTo(0,0);
+  } catch (e) { $("err").textContent = "משהו השתבש, נסו שוב. אם זה חוזר - דברו עם ניר."; }
+  $("send").textContent = "שליחה"; refresh();
+};
+$("edit").onclick = () => { $("done").style.display = "none"; $("form").style.display = ""; $("bar").style.display = ""; };
+async function shareLink(){
+  const text = "בחרו מה אתם רוצים מאייל שלי: ", url = location.href.split("#")[0];
+  if (navigator.share) { try { await navigator.share({title:document.title, text:"בחרו מנות וכמויות מהתפריט של אייל שלי", url}); return; } catch(e) { if (e && e.name === "AbortError") return; } }
+  window.open("https://wa.me/?text=" + encodeURIComponent(text + url), "_blank");
+}
+$("share1").onclick = shareLink; $("share2").onclick = shareLink;
+loadMine();
+</script>
+</body>
+</html>
