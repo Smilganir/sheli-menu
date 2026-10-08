@@ -28,6 +28,7 @@ h2{font-size:18px;margin:22px 4px 8px;color:#b5542b}
 .bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;padding:10px 14px;display:flex;align-items:center;gap:12px;justify-content:space-between}
 .bar .tot{font-size:14px} .bar .tot b{display:block;font-size:20px}
 .bar button{flex:1;max-width:240px;font-size:18px;font-weight:700;padding:14px;border:0;border-radius:12px;background:#b5542b;color:#fff}
+.bar #reset{flex:0 0 auto;max-width:none;font-size:15px;padding:14px 16px;background:#fff;color:#b5542b;border:1px solid #b5542b}
 .bar button:disabled{background:#bbb}
 #done{display:none;text-align:center;padding:40px 16px}
 #done .ok{font-size:56px}
@@ -41,7 +42,7 @@ h2{font-size:18px;margin:22px 4px 8px;color:#b5542b}
 <body>
 <header><h1>🍽️ מה אוכלים? תפריט אייל שלי</h1><p>בחרו מנות וכמויות (מנה או קופסה), כתבו שם ולחצו שליחה. אפשר לחזור ולשנות - פשוט לשלוח שוב עם אותו שם.</p></header>
 <main id="form">
-  <label class="name"><span>השם שלך</span><input type="text" id="name" placeholder="למשל: סבתא רחל" autocomplete="name"></label>
+  <label class="name"><span>השם שלך</span><input type="text" id="name" placeholder="למשל: רוית סמילגה" autocomplete="name"></label>
   <div class="menu-note">התפריט מבוסס על פרסומים ישנים; ייתכן שחלק מהמנות לא זמינות. זו רשימת משאלות למשפחה, לא הזמנה למסעדה.</div>
   <div id="menu"></div>
   <div id="err"></div>
@@ -50,7 +51,7 @@ h2{font-size:18px;margin:22px 4px 8px;color:#b5542b}
 </main>
 <main id="done"><div class="ok">✅</div><h2 style="color:#222">תודה, הבחירה נשמרה!</h2><div id="sum"></div>
   <button id="edit">שינוי הבחירה</button> <button id="share2">📤 שיתוף בוואטסאפ</button></main>
-<div class="bar" id="bar"><div class="tot"><span id="totlabel">נבחרו</span><b id="total">0 פריטים</b></div><button id="send" disabled>שליחה</button></div>
+<div class="bar" id="bar"><div class="tot"><span id="totlabel">נבחרו</span><b id="total">0 פריטים</b></div><button id="reset" type="button">איפוס</button><button id="send" disabled>שליחה</button></div>
 <script>
 // ====== EDIT HERE: endpoint and menu ======
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbx57_gaSYrSiMOtNTdbZk0D96gqRQGN66CcIBP-8eduEGoxAnpUZI_9sjs2ndL7Zt1V4A/exec";
@@ -581,6 +582,13 @@ async function loadMine() {
     (r.items || []).forEach(x => { if (x.dish in qty) { if (x.unit) { unit[x.dish] = x.unit; MENU.forEach(c => c.items.forEach(it => { if (it.name === x.dish) it.el.querySelector(".unit").value = x.unit; })); } set(x.dish, +x.qty); } }); } catch (e) {}
   refresh();
 }
+$("reset").onclick = async () => {
+  const n = $("name").value.trim(), had = chosen().length > 0;
+  if (!confirm(n ? "לאפס את כל הבחירות ולמחוק את מה ששמור על השם " + n + "?" : "לאפס את כל הבחירות?")) return;
+  MENU.forEach(c => c.items.forEach(it => { unit[it.name] = "מנה"; it.el.querySelector(".unit").value = "מנה"; set(it.name, 0); }));
+  if (n && ENDPOINT.startsWith("http")) { try { await fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({name:n, items:[]})}); } catch (e) {} }
+  refresh();
+};
 $("name").addEventListener("change", loadMine);
 $("send").onclick = async () => {
   const name = $("name").value.trim(), items = chosen(); $("err").textContent = "";
