@@ -53,7 +53,7 @@ h2{font-size:18px;margin:22px 4px 8px;color:#b5542b}
 </main>
 <main id="done"><div class="ok">✅</div><h2 style="color:#222">תודה, הבחירה נשמרה!</h2><div id="sum"></div>
   <button id="edit">שינוי הבחירה</button> <button id="share2">📤 שיתוף בוואטסאפ</button></main>
-<div class="bar" id="bar"><div class="tot"><span id="totlabel">נבחרו</span><b id="total">0 פריטים</b></div><button id="reset" type="button">איפוס</button><button id="send" disabled>שמירה</button></div>
+<div class="bar" id="bar"><div class="tot"><span id="totlabel">נבחרו</span><b id="total">0 פריטים</b></div><button id="reset" type="button">איפוס</button><div style="flex:1;max-width:240px;display:flex;flex-direction:column;gap:4px"><div id="hint" style="font-size:12px;color:#777;text-align:center">כדי לשמור: כתבו שם ובחרו לפחות מנה אחת</div><button id="send" disabled style="max-width:none">שמירה</button></div></div>
 <script>
 // ====== EDIT HERE: endpoint and menu ======
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbx57_gaSYrSiMOtNTdbZk0D96gqRQGN66CcIBP-8eduEGoxAnpUZI_9sjs2ndL7Zt1V4A/exec";
@@ -575,7 +575,7 @@ function set(n, v) {
   refresh();
 }
 function chosen() { const r = []; MENU.forEach(c => c.items.forEach(it => { if (qty[it.name] > 0) r.push({category:c.category, dish:it.name, qty:qty[it.name], unit:unit[it.name], price:it.price || 0}); })); return r; }
-function refresh() { const c = chosen(), t = c.reduce((s, x) => s + x.qty * x.price, 0); $("total").textContent = t > 0 ? fmt(t) : c.length + " פריטים"; $("totlabel").textContent = t > 0 ? "סה״כ להזמנה שלך" : "נבחרו"; $("send").disabled = !(chosen().length && $("name").value.trim()); }
+function refresh() { setTimeout(() => { const h = $("hint"); if (h) h.style.display = $("send").disabled ? "block" : "none"; }); const c = chosen(), t = c.reduce((s, x) => s + x.qty * x.price, 0); $("total").textContent = t > 0 ? fmt(t) : c.length + " פריטים"; $("totlabel").textContent = t > 0 ? "סה״כ להזמנה שלך" : "נבחרו"; $("send").disabled = !(chosen().length && $("name").value.trim()); }
 $("name").addEventListener("input", refresh);
 $("name").value = localStorage.getItem("fm_name") || "";
 async function loadMine() {
