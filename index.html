@@ -579,7 +579,7 @@ function addCustom(name) {
   name = name.trim().slice(0, 80); if (!name) return null;
   if (name in qty) return name;
   const it = {name: name, price: null}; CUSTOM.items.push(it);
-  $("customh").style.display = "block"; build(it, $("customhost")); return name;
+  $("customh").style.display = "block"; build(it, $("customhost")); markTaken(); return name;
 }
 $("custadd").onclick = () => { const n = addCustom($("custname").value); if (n) { $("custname").value = ""; if (qty[n] === 0) set(n, 1); } };
 $("custname").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("custadd").click(); } });
@@ -632,13 +632,34 @@ $("sumbtn").onclick = async () => {
   } catch (e) { box.textContent = "לא הצלחתי לטעון את הסיכום."; }
 };
 $("name").addEventListener("change", loadMine);
+let TAKEN = {};
+const norm = t => String(t || "").replace(/[\u200e\u200f\u202a-\u202e]/g, "").trim();
+async function loadTaken() {
+  try { const r = await (await fetch(ENDPOINT + "?all=1")).json(), t = {};
+    (r.rows || []).forEach(x => { const d = String(x.dish).trim(); (t[d] = t[d] || []); const n = norm(x.name); if (n && t[d].indexOf(n) < 0) t[d].push(n); });
+    TAKEN = t; } catch (e) {}
+  markTaken();
+}
+function othersFor(dish) { const me = norm($("name").value); return (TAKEN[dish] || []).filter(n => n !== me); }
+function markTaken() {
+  MENU.forEach(c => c.items.forEach(it => { if (!it.el) return;
+    let b = it.el.querySelector(".taken"); const o = othersFor(it.name);
+    if (!o.length) { if (b) b.remove(); it.el.style.background = ""; return; }
+    if (!b) { b = document.createElement("div"); b.className = "taken"; b.style.cssText = "font-size:12px;color:#8a5a00;background:#fff3cd;border-radius:6px;padding:2px 8px;margin-top:4px;display:inline-block"; it.el.querySelector(".info").appendChild(b); }
+    b.textContent = "כבר נבחר: " + o.join(", "); it.el.style.background = "#fffaf0";
+  }));
+}
+$("name").addEventListener("input", markTaken);
 $("send").onclick = async () => {
   const name = $("name").value.trim(), items = chosen(); $("err").textContent = "";
   $("send").disabled = true; $("send").textContent = "שומר...";
+  await loadTaken();
+  const dup = items.filter(x => othersFor(x.dish).length);
+  if (dup.length && !confirm("המנות האלה כבר נבחרו על ידי אחרים:\n" + dup.map(x => "• " + x.dish + " (" + othersFor(x.dish).join(", ") + ")").join("\n") + "\n\nלשמור בכל זאת? ביטול יחזיר אותך לבחירה.")) { $("send").textContent = "שמירה"; refresh(); return; }
   try {
     const res = await fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({name, items})});
     const j = await res.json(); if (!j.ok) throw new Error(j.error);
-    localStorage.setItem("fm_name", name);
+    localStorage.setItem("fm_name", name); loadTaken();
     const tot = items.reduce((s,x)=>s+x.qty*x.price,0);
     $("sum").innerHTML = "<p><b></b></p><ul style='list-style:none;padding:0'></ul>" + (tot > 0 ? "<p>סה״כ: <b>" + fmt(tot) + "</b></p>" : "");
     $("sum").querySelector("b").textContent = name;
@@ -654,7 +675,7 @@ async function shareLink(){
   window.open("https://wa.me/?text=" + encodeURIComponent(text + url), "_blank");
 }
 $("share1").onclick = shareLink; $("share2").onclick = shareLink;
-loadMine();
+loadMine().then(loadTaken);
 </script>
 </body>
 </html>
