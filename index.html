@@ -34,6 +34,7 @@ h2{font-size:18px;margin:22px 4px 8px;color:#b5542b}
 #done button{font-size:16px;padding:12px 20px;border-radius:10px;border:1px solid #b5542b;background:#fff;color:#b5542b;margin:6px}
 .share{display:block;margin:16px auto;font-size:16px;padding:12px 18px;border-radius:10px;border:1px solid #25a244;background:#fff;color:#1a7a33}
 #err{color:#b00;text-align:center;margin:8px}
+.menu-note{font-size:13px;line-height:1.5;background:#fff0e5;color:#794126;padding:10px 12px;border-radius:10px;margin-bottom:12px}
 .src{font-size:12px;color:#888;text-align:center;margin:20px 0}
 </style>
 </head>
@@ -41,6 +42,7 @@ h2{font-size:18px;margin:22px 4px 8px;color:#b5542b}
 <header><h1>🍽️ מה אוכלים? תפריט אייל שלי</h1><p>בחרו מנות וכמויות (מנה או קופסה), כתבו שם ולחצו שליחה. אפשר לחזור ולשנות - פשוט לשלוח שוב עם אותו שם.</p></header>
 <main id="form">
   <label class="name"><span>השם שלך</span><input type="text" id="name" placeholder="למשל: סבתא רחל" autocomplete="name"></label>
+  <div class="menu-note">המבחר משתנה מדי יום. הרשימה כוללת גם מנות מתפריטים ישנים; הבחירה כאן אינה אישור לזמינות או הזמנה מהמסעדה.</div>
   <div id="menu"></div>
   <div id="err"></div>
   <button type="button" class="share" id="share1">📤 שיתוף הדף בוואטסאפ</button>
@@ -52,7 +54,7 @@ h2{font-size:18px;margin:22px 4px 8px;color:#b5542b}
 <script>
 // ====== EDIT HERE: endpoint and menu ======
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbx57_gaSYrSiMOtNTdbZk0D96gqRQGN66CcIBP-8eduEGoxAnpUZI_9sjs2ndL7Zt1V4A/exec";
-const SOURCE_NOTE = "התפריט לפי רשימת המנות של אייל שלי, המלאכה 4 עפולה. בימי שישי יש את כל התפריט.";
+const SOURCE_NOTE = "רשימת מנות ממקורות ציבוריים של אייל שלי, המלאכה 4 עפולה, ובהם תפריטים מ-2016. המבחר משתנה; יש לבדוק זמינות מול המקום. לא נמצאו מחירים עדכניים.";
 const MENU = [
  {
   "category": "דגים",
@@ -82,6 +84,34 @@ const MENU = [
    {
     "name": "דג נמרלוזה מטוגן",
     "price": null
+   },
+   {
+    "name": "גפילטעפיש קציצה",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
+   },
+   {
+    "name": "גפילטעפיש ממולא",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
+   },
+   {
+    "name": "מושט שלם מבושל",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
+   },
+   {
+    "name": "מושט שלם מטוגן",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
    }
   ]
  },
@@ -137,6 +167,20 @@ const MENU = [
    {
     "name": "שניצלונים",
     "price": null
+   },
+   {
+    "name": "עוף שלם בתנור",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
+   },
+   {
+    "name": "עוף שלם עם פירות יבשים",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
    }
   ]
  },
@@ -188,6 +232,27 @@ const MENU = [
     "name": "אסדו",
     "price": null,
     "fri": true
+   },
+   {
+    "name": "שוק הודו בתנור",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
+   },
+   {
+    "name": "מוח עגל",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
+   },
+   {
+    "name": "רגל קרושה",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
    }
   ]
  },
@@ -243,6 +308,13 @@ const MENU = [
     "name": "כרוב צמחוני",
     "price": null,
     "fri": true
+   },
+   {
+    "name": "עלי גפן צמחוני",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
    }
   ]
  },
@@ -327,6 +399,27 @@ const MENU = [
    {
     "name": "גזר / סלק מבושל",
     "price": null
+   },
+   {
+    "name": "בטטה",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
+   },
+   {
+    "name": "אפונה",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
+   },
+   {
+    "name": "במיה",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
    }
   ]
  },
@@ -408,6 +501,40 @@ const MENU = [
    {
     "name": "טונה",
     "price": null
+   },
+   {
+    "name": "חזרת",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
+   }
+  ]
+ },
+ {
+  "category": "מנות פתיחה",
+  "items": [
+   {
+    "name": "קובה",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
+   },
+   {
+    "name": "לטקס",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה"
+   },
+   {
+    "name": "קניידלך",
+    "price": null,
+    "source": "https://lh3.googleusercontent.com/grass-cs/ACvplmP88xMm1VSIFn6xA__mcrlxriwpWeYgZi86phF5mJnwY-SpwZTWKEE_vOB-wIHO0EtaWhUgrkdfh5BoEI2Aeo-QIzFvpaFhfgrvzMUP7aQ3YnGjM2ElsQbtmTIetUy6ScbGyBA=s0",
+    "sourceDate": "2016-04",
+    "sourceNote": "תפריט פסח 2016; זמינות כיום לא אומתה",
+    "season": "פסח"
    }
   ]
  }
@@ -426,6 +553,7 @@ MENU.forEach(cat => {
       '<div class="step"><button type="button" aria-label="הוסף">+</button><span class="q">0</span><button type="button" aria-label="הפחת">−</button><select class="unit" aria-label="יחידה"><option value="מנה">מנה</option><option value="קופסה">קופסה</option></select></div>';
     d.querySelector(".nm").textContent = it.name;
     if (it.fri) { const t = document.createElement("span"); t.className = "tag"; t.textContent = "שישי בלבד"; d.querySelector(".nm").appendChild(t); }
+    if (it.season) { const t = document.createElement("span"); t.className="tag"; t.textContent=it.season; d.querySelector(".nm").appendChild(t); }
     d.querySelector(".pr").textContent = it.price ? fmt(it.price) + " ליחידה" : "";
     unit[it.name] = "מנה"; d.querySelector(".unit").onchange = e => { unit[it.name] = e.target.value; refresh(); };
     const [plus, minus] = d.querySelectorAll("button");
