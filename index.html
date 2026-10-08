@@ -47,6 +47,8 @@ h2{font-size:18px;margin:22px 4px 8px;color:#b5542b}
   <div id="menu"></div>
   <div id="err"></div>
   <button type="button" class="share" id="share1">📤 שיתוף הדף בוואטסאפ</button>
+  <button type="button" class="share" id="sumbtn">📋 סיכום: מי הזמין מה</button>
+  <div id="allsum" style="display:none;background:#fff;border:1px solid #ddd;border-radius:12px;padding:12px;margin:10px 0;font-size:15px"></div>
   <div class="src" id="src"></div>
 </main>
 <main id="done"><div class="ok">✅</div><h2 style="color:#222">תודה, הבחירה נשמרה!</h2><div id="sum"></div>
@@ -588,6 +590,27 @@ $("reset").onclick = async () => {
   MENU.forEach(c => c.items.forEach(it => { unit[it.name] = "מנה"; it.el.querySelector(".unit").value = "מנה"; set(it.name, 0); }));
   if (n && ENDPOINT.startsWith("http")) { try { await fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({name:n, items:[]})}); } catch (e) {} }
   refresh();
+};
+$("sumbtn").onclick = async () => {
+  const box = $("allsum");
+  if (box.style.display === "block") { box.style.display = "none"; return; }
+  box.style.display = "block"; box.textContent = "טוען...";
+  try {
+    const r = await (await fetch(ENDPOINT + "?all=1")).json(), rows = r.rows || [];
+    if (!rows.length) { box.textContent = "עדיין אף אחד לא שלח בחירה."; return; }
+    const by = {}, dish = {};
+    rows.forEach(x => { const q = +x.qty || 0, u = x.unit || "מנה";
+      (by[x.name] = by[x.name] || []).push(x.dish + " ×" + q + (u === "קופסה" ? " (קופסה)" : ""));
+      const d = dish[x.dish] = dish[x.dish] || {}; d[u] = (d[u] || 0) + q; });
+    box.textContent = "";
+    const h = t => { const e = document.createElement("h3"); e.textContent = t; e.style.margin = "8px 0 4px"; box.appendChild(e); };
+    const p = t => { const e = document.createElement("div"); e.textContent = t; e.style.padding = "3px 0"; box.appendChild(e); };
+    h("לפי אדם (" + Object.keys(by).length + ")");
+    Object.keys(by).forEach(n => p(n + ": " + by[n].join(", ")));
+    h("סה״כ לפי מנה");
+    Object.keys(dish).sort((a, b) => Object.values(dish[b]).reduce((s, v) => s + v, 0) - Object.values(dish[a]).reduce((s, v) => s + v, 0))
+      .forEach(k => p(k + ": " + Object.keys(dish[k]).map(u => dish[k][u] + " " + (dish[k][u] === 1 ? u : (u === "קופסה" ? "קופסאות" : "מנות"))).join(" + ")));
+  } catch (e) { box.textContent = "לא הצלחתי לטעון את הסיכום."; }
 };
 $("name").addEventListener("change", loadMine);
 $("send").onclick = async () => {
