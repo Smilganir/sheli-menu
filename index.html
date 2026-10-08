@@ -45,6 +45,8 @@ h2{font-size:18px;margin:22px 4px 8px;color:#b5542b}
   <label class="name"><span>השם שלך</span><input type="text" id="name" placeholder="למשל: רוית סמילגה" autocomplete="name"></label>
   <div class="menu-note">התפריט מבוסס על פרסומים ישנים; ייתכן שחלק מהמנות לא זמינות. זו רשימת משאלות למשפחה, לא הזמנה למסעדה.</div>
   <div id="menu"></div>
+  <div id="customwrap"><h2 id="customh" style="display:none">הוספה ידנית</h2><div id="customhost"></div>
+    <div style="display:flex;gap:8px;margin:12px 0"><input type="text" id="custname" maxlength="80" placeholder="מנה שחסרה? כתבו את שמה" style="flex:1;font-size:16px;padding:10px;border:1px solid #ccc;border-radius:10px"><button type="button" id="custadd" style="font-size:15px;font-weight:700;padding:10px 14px;border:1px solid #b5542b;border-radius:10px;background:#fff;color:#b5542b">הוסף פריט חסר</button></div></div>
   <div id="err"></div>
   <button type="button" class="share" id="share1">📤 שיתוף הדף בוואטסאפ</button>
   <button type="button" class="share" id="sumbtn">📋 סיכום: מי הזמין מה</button>
@@ -338,6 +340,10 @@ const MENU = [
     "price": null
    },
    {
+    "name": "קוסקוס",
+    "price": null
+   },
+   {
     "name": "תפוח אדמה פרוס",
     "price": null
    },
@@ -549,7 +555,10 @@ const menuEl = $("menu");
 MENU.forEach(cat => {
   const h = document.createElement("h2"); h.textContent = cat.category; menuEl.appendChild(h);
   if (cat.note) { const n = document.createElement("div"); n.className="pr"; n.style.margin="0 4px"; n.textContent=cat.note; menuEl.appendChild(n); }
-  cat.items.forEach(it => {
+  cat.items.forEach(it => build(it, menuEl));
+});
+function build(it, host) {
+  {
     qty[it.name] = 0;
     const d = document.createElement("div"); d.className = "dish";
     d.innerHTML = '<div class="info"><div class="nm"></div><div class="pr"></div><div class="lt"></div></div>' +
@@ -562,9 +571,18 @@ MENU.forEach(cat => {
     const [plus, minus] = d.querySelectorAll("button");
     plus.onclick = () => set(it.name, Math.min(99, qty[it.name] + 1));
     minus.onclick = () => set(it.name, Math.max(0, qty[it.name] - 1));
-    it.el = d; menuEl.appendChild(d);
-  });
-});
+    it.el = d; host.appendChild(d);
+  }
+}
+const CUSTOM = {category: "הוספה ידנית", items: []}; MENU.push(CUSTOM);
+function addCustom(name) {
+  name = name.trim().slice(0, 80); if (!name) return null;
+  if (name in qty) return name;
+  const it = {name: name, price: null}; CUSTOM.items.push(it);
+  $("customh").style.display = "block"; build(it, $("customhost")); return name;
+}
+$("custadd").onclick = () => { const n = addCustom($("custname").value); if (n) { $("custname").value = ""; if (qty[n] === 0) set(n, 1); } };
+$("custname").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("custadd").click(); } });
 $("src").textContent = SOURCE_NOTE;
 function set(n, v) {
   qty[n] = v;
@@ -581,12 +599,13 @@ $("name").value = localStorage.getItem("fm_name") || "";
 async function loadMine() {
   const n = $("name").value.trim(); if (!n || !ENDPOINT.startsWith("http")) return refresh();
   try { const r = await (await fetch(ENDPOINT + "?name=" + encodeURIComponent(n))).json();
-    (r.items || []).forEach(x => { if (x.dish in qty) { if (x.unit) { unit[x.dish] = x.unit; MENU.forEach(c => c.items.forEach(it => { if (it.name === x.dish) it.el.querySelector(".unit").value = x.unit; })); } set(x.dish, +x.qty); } }); } catch (e) {}
+    (r.items || []).forEach(x => { if (!(x.dish in qty)) addCustom(String(x.dish)); if (x.dish in qty) { if (x.unit) { unit[x.dish] = x.unit; MENU.forEach(c => c.items.forEach(it => { if (it.name === x.dish) it.el.querySelector(".unit").value = x.unit; })); } set(x.dish, +x.qty); } }); } catch (e) {}
   refresh();
 }
 $("reset").onclick = async () => {
   const n = $("name").value.trim(), had = chosen().length > 0;
   if (!confirm(n ? "לאפס את כל הבחירות ולמחוק את מה ששמור על השם " + n + "?" : "לאפס את כל הבחירות?")) return;
+  CUSTOM.items.forEach(it => { it.el.remove(); delete qty[it.name]; delete unit[it.name]; }); CUSTOM.items.length = 0; $("customh").style.display = "none";
   MENU.forEach(c => c.items.forEach(it => { unit[it.name] = "מנה"; it.el.querySelector(".unit").value = "מנה"; set(it.name, 0); }));
   if (n && ENDPOINT.startsWith("http")) { try { await fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({name:n, items:[]})}); } catch (e) {} }
   refresh();
