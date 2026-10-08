@@ -40,7 +40,7 @@ h2{font-size:18px;margin:22px 4px 8px;color:#b5542b}
 </style>
 </head>
 <body>
-<header><h1>🍽️ מה אוכלים? תפריט אייל שלי</h1><p>בחרו מנות וכמויות (מנה או קופסה), כתבו שם ולחצו שליחה. אפשר לחזור ולשנות - פשוט לשלוח שוב עם אותו שם.</p></header>
+<header><h1>🍽️ מה אוכלים? תפריט אייל שלי</h1><p>בחרו מנות וכמויות (מנה או קופסה), כתבו שם ולחצו שמירה. אפשר לחזור ולשנות - פשוט לשמור שוב עם אותו שם.</p></header>
 <main id="form">
   <label class="name"><span>השם שלך</span><input type="text" id="name" placeholder="למשל: רוית סמילגה" autocomplete="name"></label>
   <div class="menu-note">התפריט מבוסס על פרסומים ישנים; ייתכן שחלק מהמנות לא זמינות. זו רשימת משאלות למשפחה, לא הזמנה למסעדה.</div>
@@ -53,7 +53,7 @@ h2{font-size:18px;margin:22px 4px 8px;color:#b5542b}
 </main>
 <main id="done"><div class="ok">✅</div><h2 style="color:#222">תודה, הבחירה נשמרה!</h2><div id="sum"></div>
   <button id="edit">שינוי הבחירה</button> <button id="share2">📤 שיתוף בוואטסאפ</button></main>
-<div class="bar" id="bar"><div class="tot"><span id="totlabel">נבחרו</span><b id="total">0 פריטים</b></div><button id="reset" type="button">איפוס</button><button id="send" disabled>שליחה</button></div>
+<div class="bar" id="bar"><div class="tot"><span id="totlabel">נבחרו</span><b id="total">0 פריטים</b></div><button id="reset" type="button">איפוס</button><button id="send" disabled>שמירה</button></div>
 <script>
 // ====== EDIT HERE: endpoint and menu ======
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbx57_gaSYrSiMOtNTdbZk0D96gqRQGN66CcIBP-8eduEGoxAnpUZI_9sjs2ndL7Zt1V4A/exec";
@@ -597,7 +597,7 @@ $("sumbtn").onclick = async () => {
   box.style.display = "block"; box.textContent = "טוען...";
   try {
     const r = await (await fetch(ENDPOINT + "?all=1")).json(), rows = r.rows || [];
-    if (!rows.length) { box.textContent = "עדיין אף אחד לא שלח בחירה."; return; }
+    if (!rows.length) { box.textContent = "עדיין אף אחד לא שמר בחירה."; return; }
     const by = {}, dish = {};
     rows.forEach(x => { const q = +x.qty || 0, u = x.unit || "מנה";
       (by[x.name] = by[x.name] || []).push(x.dish + " ×" + q + (u === "קופסה" ? " (קופסה)" : ""));
@@ -615,7 +615,7 @@ $("sumbtn").onclick = async () => {
 $("name").addEventListener("change", loadMine);
 $("send").onclick = async () => {
   const name = $("name").value.trim(), items = chosen(); $("err").textContent = "";
-  $("send").disabled = true; $("send").textContent = "שולח...";
+  $("send").disabled = true; $("send").textContent = "שומר...";
   try {
     const res = await fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({name, items})});
     const j = await res.json(); if (!j.ok) throw new Error(j.error);
@@ -626,7 +626,7 @@ $("send").onclick = async () => {
     const ul = $("sum").querySelector("ul"); items.forEach(x => { const li = document.createElement("li"); li.textContent = x.qty + " " + x.unit + " - " + x.dish + (x.price ? " (" + fmt(x.qty*x.price) + ")" : ""); ul.appendChild(li); });
     $("form").style.display = "none"; $("bar").style.display = "none"; $("done").style.display = "block"; window.scrollTo(0,0);
   } catch (e) { $("err").textContent = "משהו השתבש, נסו שוב. אם זה חוזר - דברו עם ניר."; }
-  $("send").textContent = "שליחה"; refresh();
+  $("send").textContent = "שמירה"; refresh();
 };
 $("edit").onclick = () => { $("done").style.display = "none"; $("form").style.display = ""; $("bar").style.display = ""; };
 async function shareLink(){
